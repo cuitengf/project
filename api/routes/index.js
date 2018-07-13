@@ -54,7 +54,8 @@ module.exports = (router) => {
 
           ctx.body = {
             code: 200,
-            message: '登陆成功'
+            message: '登陆成功',
+            uid: result[0].id
           }
         }).catch((err) => {
           if (err) {
@@ -110,5 +111,129 @@ module.exports = (router) => {
         });
     })
 
+    // 获取购物车商品
+    .get('/cart', async ctx => {
+      var uid = ctx.query.uid
 
+      if (uid) {
+
+        var carts = await ctx
+          .orm()
+          .sql
+          .select()
+          .from('users', "u")
+          .join('orders', "o", 'o.uid = u.id')
+          .query()
+
+        var bid;
+        var orders = [];
+        for (let i = 0; i < carts.length; i++) {
+          orders.push(await ctx
+            .orm()
+            .sql
+            .select()
+            .from('books')
+            .where(`bid=${carts[i].bid}`)
+            .query())
+        }
+        ctx.body = {
+          code: 200,
+          carts: carts,
+          ods: orders
+        }
+        return
+      }
+      ctx.body = {
+        code: 400
+      }
+    })
+
+    // 加入购物车
+    .post('/cart/join', async ctx => {
+      var bid = ctx.request.body.bid;
+      var uid = ctx.request.body.uid
+
+      var ord = await ctx.orm()
+        .sql
+        .select()
+        .from('orders')
+        .where(`bid= ${bid}`)
+        .query()
+      console.log(ord);
+      if (ord[0]) {
+        var order = await ctx.orm()
+          .sql
+          .update()
+          .table('orders')
+          .where(`bid=${bid}`)
+          .set('cont', `${ord[0].cont + 1}`)
+          .query()
+
+        if (!order) {
+          ctx.body = {
+            code: 500,
+            message: '服务器出错, 后台人员正在维修中....'
+          }
+          return;
+        }
+        ctx.body = {
+          code: 200,
+          message: '加入成功'
+        }
+        return;
+      }
+
+      var result = await ctx.orm()
+        .sql
+        .insert()
+        .into('orders')
+        .set('bid', `${bid}`)
+        .set('uid', `${uid}`)
+        .query()
+      if (result) {
+
+        ctx.body = {
+          code: 200,
+          message: '加入成功',
+        }
+        return;
+      }
+      ctx.body = {
+        code: 500,
+        message: '服务器出错, 后台人员正在维修中....'
+      }
+    })
+
+    // 删除购物车商品
+    .post('/cart/del', async ctx => {
+      var uid = ctx.request.body.uid;
+      var bid = ctx.request.body.bid;
+      console.log(uid, bid);
+      if (!uid || !bid) {
+        ctx.body = {
+          code: 402,
+          message: '参数出错, 请重试'
+        }
+        return
+      }
+      var ord = await ctx.orm()
+        .sql
+        .delete()
+        .from('orders')
+        .where(`uid=${uid}`)
+        .where(`bid=${bid}`)
+        .query()
+      console.log(ord);
+      if (!ord[0]) {
+        ctx.body = {
+          code: 500,
+          message: '服务器出错, 后台人员正在维修中....'
+        }
+        return;
+      }
+      ctx.body = {
+        code: 200,
+        message: '删除成功'
+      }
+    })
 }

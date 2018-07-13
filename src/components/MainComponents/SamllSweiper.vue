@@ -1,26 +1,24 @@
 <template>
     <div class="samllSweiper">
         <mt-swipe :show-indicators="false">
-            <mt-swipe-item>
-                <div>
-                    <ul class="list">
-                        <li class="item">
-                           <a href="javascript:">
-                               <img src="" alt="">
-                           </a>
-                           <p>
-                               <span class="recommend" :style="{color: recommendColor, fontSize: isSize}">推荐</span>
-                           </p>
-                           <a href="javascript:">
-                                <span class="name" :style="{color: nameColor, fontSize: isSize}" >上帝怀中的羔羊</span>
-                           </a>
-                           <p>
-                               <span class="author" :style="{color: authorColor, fontSize: isSize}">
-                                   作者
-                                </span>
-                           </p>
-                        </li>
-                    </ul>
+            <mt-swipe-item v-for="(item, index) in books" :key="index">
+                <div class="list">
+                    <div class="item">
+                        <a href="javascript:">
+                            <img :src="item.img" alt="">
+                        </a>
+                        <p>
+                            <span class="recommend" v-if="item.hot" :style="{color: recommendColor, fontSize: isSize}">推荐</span>
+                        </p>
+                        <a href="javascript:">
+                            <span class="name" :style="{color: nameColor, fontSize: isSize}" >{{item.bname}}</span>
+                        </a>
+                        <p>
+                            <span class="author" :style="{color: authorColor, fontSize: isSize}">
+                                {{item.bauth}}
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </mt-swipe-item>
         </mt-swipe>
@@ -37,13 +35,21 @@ export default {
       authorColor: "#333",
       isSize: "0.9rem"
     };
-  }
+  },
+  props: ["books"]
 };
 </script>
 
 <style scoped>
 .samllSweiper {
   margin: 1.25rem 0;
+}
+.item {
+  width: 7.1875rem;
+}
+.item p{
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 img {
   display: inline-block;

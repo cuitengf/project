@@ -23,13 +23,19 @@
                                 <p class="recommend">
                                     <span v-if="item.hot" :style="{color: recommendColor, fontSize: isSize}">推荐</span>
                                 </p>
-                                <a href="javascript:" >
-                                        <span class="name hoverA" :style="{color: nameColor, fontSize: isSize}" >{{item.bname}}</span>
-                                </a>
                                 <p>
-                                    <span class="author" :style="{color: authorColor, fontSize: isSize}">
+                                    <a href="javascript:" :title='item.bname'>
+                                        <span class="name hoverA" :style="{color: nameColor, fontSize: isSize}" >{{item.bname}}</span>
+                                    </a>
+                                </p>
+                                <p>
+                                    <span 
+                                    class="author" 
+                                    :style="{color: authorColor, fontSize: isSize}"
+                                    :title="item.bauth"
+                                    >
                                         {{item.bauth}}
-                                        </span>
+                                    </span>
                                 </p>
                             </li>
                         </ul>
@@ -156,14 +162,18 @@
                             <a href="javascript:">
                                 <img :src="item.img" alt="">
                             </a>
-                            <span class="name">
-                                <a href="javascript:" class="hoverA">
-                                    {{item.bname}}
-                                </a>
-                            </span>
-                            <span class="pic">
-                                {{item.pic}}
-                            </span>
+                            <p>
+                                <span class="name hideBot">
+                                    <a href="javascript:" class="hoverA">
+                                        {{item.bname}}
+                                    </a>
+                                </span> 
+                            </p>
+                            <p>
+                                <span class="pic">
+                                    {{item.pic}}
+                                </span>
+                            </p>
                         </li>
                     </ul>
                 </div>
@@ -196,7 +206,7 @@
                            <a href="javascript:">
                                <img src="" alt="">
                            </a>
-                           <p>
+                           <p class="hideBot">
                                <a href="javascript:" >
                                 <span class="name hoverA" :style="{color: nameColor, fontSize: isSize}" >{{item.bname}}</span>
                            </a>
@@ -282,12 +292,11 @@ export default {
       authorColor: "#333",
       isSize: "0.9rem",
       sign: true,
-      evaluateColor: "#e09015",
+      evaluateColor: "#e09015"
     };
   },
-  
-  props: ["books"],
 
+  props: ["books"]
 };
 </script>
 
@@ -306,9 +315,10 @@ export default {
   background: #f7f3db;
 }
 .mainLeft .block .list .item {
+  width: 20%;
   float: left;
   position: relative;
-  margin-right: 1.25rem;
+  padding-right: 1.25rem;
   margin-bottom: 1.25rem;
 }
 .mainLeft .block .list .item:hover .details {
@@ -375,6 +385,10 @@ export default {
   margin: 0 0.9375rem;
   font-size: 0.875rem;
   color: #37a;
+}
+.container .item p {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .block .container .details {
   padding: 0.625rem 0.9375rem;
@@ -444,10 +458,11 @@ export default {
   margin-top: 0.5rem;
 }
 .bookstore .container .item {
+  width: 20%;
   float: left;
   display: flex;
   flex-direction: column;
-  margin-right: 1.875rem;
+  padding-right: 1.875rem;
 }
 .bookstore .container .item img {
   display: inline-block;

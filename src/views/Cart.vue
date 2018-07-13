@@ -4,18 +4,18 @@
       <div>
         <ul class="clearfix">
           <li class="item">
-            <p class="type color" @mouseover="typeOne($event)" id="all">
+            <p class="type color" @click="typeOne($event)" id="all">
               全部商品
                 <span>
-                  {{all}}
+                  {{listAll.length}}
                 </span>
             </p>
           </li>
           <li class="item">
-            <p class="type" @mouseover="typeOne($event)" id="buy">
+            <p class="type" @click="typeOne($event)" id="buy">
               已购买
                 <span>
-                  {{buy}}
+                  {{listBuy.length}}
                 </span>
             </p>
           </li>
@@ -31,68 +31,96 @@
             <th>操作</th>
           </tr>
           <tr v-if="list" v-for="(item, index) in list" :key="index">
-            <td>{{item.name}}</td>
+            <td>{{item.bname}}</td>
             <td>{{item.pic}}</td>
-            <td>{{item.count}}</td>
-            <td>{{item.subtotal}}</td>
-            <td><a href="javascript;">删除</a></td>
+            <td>{{item.cont}}</td>
+            <td>{{item.pic * item.cont}}</td>
+            <td><a href="javascript:" @click="del($event)" :id='item.bid'>删除</a></td>
           </tr>
         </table>
       </div>
-      <div v-if="!list" class="empty">
+      <div v-if="flag = this.list[0] ? false : true" class="empty">
         <img src="../assets/empty.png" alt="">
         <p>购物车里空空的~</p>
         <p>快去挑选你喜欢的商品吧!</p>
-      </div>
+      </div>  
     </div>
 </template>
 
 <script>
+import { mapMutations, mapState } from "vuex";
 export default {
   name: "Cart",
   data() {
     return {
-      all: 0,
-      buy: 0,
       list: "",
-      listFlag: "all",
-      listAll: '',
-      listBuy: [
-        { name: 'name', pic: 10, count: 1, subtotal: 14.55}
-      ]
+      flag: false
     };
   },
   created() {
+    this.getCartGoods(this);
     this.isLogin();
-    this.getCart();
+    this.list = this.listAll;
+  },
+  watch: {
+    listAll(vl, old){
+      this.list = this.listAll;
+    }
+  },
+  computed: {
+    ...mapState(["listAll", "listBuy", "uid"])
   },
   methods: {
+    ...mapMutations(["getCartGoods"]),
     isLogin() {
       if (!this.$cookie.get("user")) this.$router.push({ path: "/login" });
     },
-    getCart() {
-      this.list = this.listAll;
+    del(ev) {
+      var vm = this;
+      var bid = this.$(ev.target).attr("id");
+      var uid = this.uid;
+      this._http
+        .post("/api/cart/del", { bid, uid })
+        .then(result => {
+          var code = result.data.code;
+          switch (code) {
+            case 200:
+              vm.getCartGoods(this);
+              break;
+            case 402:
+              alert(result.data.message);
+              break;
+            case 500:
+              alert(result.data.message);
+              break;
+          }
+        })
+        .catch(err => {
+          if (err) throw err;
+        });
     },
     typeOne(ev) {
       var vm = this;
-      this.$(".type").click(function() {
-        switch (vm.$(this).attr("id")) {
-          case "all":
-            vm.$(".type").removeClass("color");
-            vm.$(this).addClass("color");
-            vm.list = vm.listAll;
-            break;1
+      switch (ev.target.id) {
+        case "all":
+          vm.$(".type").removeClass("color");
+          ev.target.classList.add("color");
+          vm.list = vm.listAll;
+          this.flag = vm.list[0] ? true : false;
 
-          case "buy":
-            vm.$(".type").removeClass("color");
-            vm.$(this).addClass("color");
-            vm.list = vm.listBuy;
-            break;
+          break;
+          1;
 
-          default:
-            break;
-        }
-      });
+        case "buy":
+          vm.$(".type").removeClass("color");
+          ev.target.classList.add("color");
+          vm.list = vm.listBuy;
+          this.flag = vm.list[0] ? true : false;
+          break;
+
+        default:
+          break;
+      }
     }
   }
 };
@@ -170,5 +198,16 @@ td {
   text-align: center;
   color: #5c5c5c;
   font-size: 0.875rem;
+}
+
+/*app*/
+@media all and (max-width: 750px) {
+  .cart .list th,
+  .cart .list td {
+    display: inline-block;
+    width: 4.5rem !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 </style>

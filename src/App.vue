@@ -55,4 +55,8 @@ a {
 .home .el-main {
   overflow: visible;
 }
+.hideBot {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 </style>

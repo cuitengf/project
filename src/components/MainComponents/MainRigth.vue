@@ -61,16 +61,18 @@
                         :key="index"
                         >
                           <div>
-                              <div>
-                                  <a href="javascript:" class="titleName">
-                                      {{item.bname}}
-                                  </a>
-                                  <p>
+                              <div class="item_left">
+                                  <p :title="item.bname">
+                                    <a href="javascript:" class="titleName">
+                                        {{item.bname}}
+                                    </a>
+                                  </p>
+                                  <p :title="item.bauth">
                                       {{item.bauth}}
                                   </p>
                               </div>
                               <div>
-                                  <a href="javascript:">
+                                  <a href="javascript:" @click="join(item.bid)">
                                       加入购物车
                                   </a>
                               </div>
@@ -92,16 +94,18 @@
               </div>
               <div>
                 <ul class="list clearfix">
-                  <li class="item">
+                  <li class="item" 
+                  v-for="(item, index) in books" 
+                  :key="index">
                     <a href="javascript:">
-                      <img src="" alt="">
+                      <img :src="item.img" alt="">
                     </a>
-                    <br>
-                    <a href="javascript:">
-                      <span class="hoverA">名称</span>
-                    </a>
-                    <br>
-                    <span v-if="show">
+                    <span class="hideBot">
+                      <a href="javascript:"  class="hoverA">
+                        {{item.bname}}
+                      </a>
+                    </span>
+                    <span v-if="show" class="e-book">
                       有电子书
                     </span>
                   </li>
@@ -144,7 +148,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   name: "Mainrigth",
   props: ["books"],
@@ -181,23 +185,19 @@ export default {
       ],
       iscolorBg: true,
       isMoverColor: false,
-      bestFlag: "JD",
-      Entrance: []
+      bestFlag: "JD"
     };
   },
-  watch: {
-    bestFlag: function(val, oldval) {
-      this.getBooks();
+  computed: {
+    Entrance() {
+      return this.books.filter(v => v.flag == this.bestFlag);
     }
   },
-  created() {
-    setTimeout(() => {
-      this.getBooks();
-    }, 300);
-  },
   methods: {
-    getBooks() {
-      this.Entrance = this.books.filter(v => v.flag == this.bestFlag);
+    ...mapMutations(["goCart", "goBid"]),
+    join(bid) {
+      this.goBid(bid);
+      this.goCart(this);
     },
     clickColorBg() {
       var vm = this;
@@ -207,6 +207,7 @@ export default {
         vm.bestFlag = vm.$(this).attr("id");
       });
     },
+
     moverColor() {
       var vm = this;
       vm.$(".flag").mouseover(function() {
@@ -337,6 +338,11 @@ export default {
   line-height: 1.5;
   border-bottom: 0.0625rem dashed #ddd;
 }
+.best-selling .list .item .item_left p {
+  width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .best-selling .list .item > div {
   display: flex;
   align-items: center;
@@ -380,6 +386,9 @@ export default {
   border-bottom: 1px solid #999;
   line-height: 2;
 }
+.books .list .item {
+  width: 30%;
+}
 .books .list .item img {
   display: inline-block;
   width: 5.3125rem;
@@ -387,19 +396,21 @@ export default {
   border: 1px solid saddlebrown;
 }
 .books .list .item {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
   float: left;
+  text-align: center;
 }
-.books .list .item a span {
+.books .list .item span a {
   font-size: 0.9375rem;
   color: #3377aa;
 }
 .books .list .item:nth-of-type(2),
 .books .list .item:nth-of-type(5),
 .books .list .item:nth-of-type(8) {
-  margin: 0 1.25rem;
+  margin: 0 0.9rem;
 }
-.books .list .item > span {
+.books .list .item > .e-book {
   padding: 0.0625rem 0.1875rem;
   font-size: 0.9375rem;
   color: #fff;

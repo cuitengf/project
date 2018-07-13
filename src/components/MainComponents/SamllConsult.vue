@@ -2,20 +2,18 @@
     <div class="samllConsult">
         <div class="container">
             <mt-swipe :show-indicators="false">
-                <mt-swipe-item>
+                <mt-swipe-item v-for="(item, index) in books" :key="index">
                     <a href="javascript:">
                             <div class="consult_content">
-                                    <p class="title">title</p>
-                                    <p class="author">作者</p>
-                                    <p class="details">详情</p>
+                                    <p class="title">{{item.bname}}</p>
+                                    <p class="author">{{item.bauth}}</p>
+                                    <p class="details">{{item.bdetails | ov}}</p>
                             </div>
                             <div class="consult_img">
                                     <img src="" alt="">
                             </div>
                         </a>
                 </mt-swipe-item>
-                <mt-swipe-item>2</mt-swipe-item>
-                <mt-swipe-item>3</mt-swipe-item>
             </mt-swipe>
         </div>
         <div class="best-selling">
@@ -64,30 +62,24 @@
 import { mapState } from "vuex";
 export default {
   name: "SamllConsult",
+  filters: {
+    ov(vl){
+      if(vl.indexOf(15)) return vl.slice(0, 20)
+    }
+  },
   data() {
     return {
       iscolorBg: true,
       bestFlag: "JD",
-      Entrance: []
     };
   },
-  created() {
-    setTimeout(e => {
-      this.getBooks();
-    }, 300);
-  },
-  watch: {
-    bestFlag: function(val, oldval) {
-      this.getBooks();
+  props: ['books'],
+  computed: {
+    Entrance() {
+      return this.books.filter(v => v.flag == this.bestFlag);
     }
   },
-  computed: {
-    ...mapState(["books"])
-  },
   methods: {
-    getBooks() {
-      this.Entrance = this.books.filter(v => v.flag == this.bestFlag);
-    },
     clickColorBg() {
       var vm = this;
       vm.$(".btnFlag").click(function() {

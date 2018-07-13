@@ -21,14 +21,14 @@
         </div>
 
         <div class="samll_btm">
-            <SamllSweiper :books='books ? books : []'></SamllSweiper>
+            <SamllSweiper :books='books'></SamllSweiper>
         </div>
 
         <div class="samll_hot">
             <SamllHot></SamllHot>
         </div>
         <div class="samllConsult">
-            <SamllConsult></SamllConsult>
+            <SamllConsult :books='books'></SamllConsult>
         </div>
     </div>
 </template>

@@ -2,14 +2,13 @@
     <div class="Login">
       <h1>{{title}}</h1>
         <div>
-          <form>
             <div class="user">
                 <label for="username">账号</label>
                 <input 
                 id="username" 
                 type="text" 
                 placeholder="输入账号"
-                maxlength="12"
+                maxlength="20"
                 minlength="5"
                 required
                 >
@@ -21,7 +20,7 @@
                 type="password" 
                 id="password" 
                 placeholder="输入密码"
-                maxlength="12"
+                maxlength="20"
                 minlength="5"
                 required
                 >
@@ -32,13 +31,12 @@
                 <button id='register' @click="isLogin($event)" v-else>注册</button>
                 <button id="close" @click="isLogin($event)">取消</button>
             </div>
-          </form>
         </div>
     </div>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 export default {
   name: "Login",
   data() {
@@ -49,9 +47,11 @@ export default {
   created() {
     this.title = this.$store.state.loginTitle;
   },
-  watch: {},
+  computed: {
+    ...mapState(["path"])
+  },
   methods: {
-    ...mapMutations({ LoginState: "LoginState" }),
+    ...mapMutations(["LoginState", "getUid"]),
 
     isLogin(ev) {
       var vm = this;
@@ -61,52 +61,65 @@ export default {
         vm.$router.push({ path: "/" });
         return;
       }
+
       if (!username && !password) {
         alert("请填写账号密码");
         return;
       }
-      if (username.charAt(4) && password.charAt(4)) {
-        password = vm._md5(password);
-        switch (ev.target.id) {
-          case "login":
-            vm._http
-              .post("/api/login", { username, password })
-              .then(result => {
-                switch (result.data.code) {
-                  case 200:
-                    vm.$cookie.set("user", `username=${username}`, {
-                      expires: "2h"
-                    });
-                    if (vm.$cookie.get("user")) vm.LoginState();
-                    vm.$router.push({ path: vm.$store.state.path });
-                    break;
-                  case 400:
-                    alert("账号密码错误,请重新输入");
-                    break;
-                  case 500:
-                    alert("服务器错误,后台人员正在维修中...");
-                    break;
-                }
-                return;
-              })
-              .catch(err => {
-                throw new Error(err);
-              });
-            break;
 
-          case "register":
+      password = vm._md5(password);
+      switch (ev.target.id) {
+        case "login":
+          vm._http
+            .post("/api/login", { username, password })
+            .then(result => {
+              switch (result.data.code) {
+                case 200:
+                  vm.$cookie.set(
+                    "user",
+                    `username=${username}, uid=${result.data.uid}`,
+                    {
+                      expires: "2h"
+                    }
+                  );
+                  if (vm.$cookie.get("user")) {
+                    vm.LoginState();
+                  }
+                  vm.$router.push({ path: this.path });
+                  break;
+                case 400:
+                  alert("账号密码错误,请重新输入");
+                  break;
+                case 500:
+                  alert("服务器错误,后台人员正在维修中...");
+                  break;
+              }
+              return;
+            })
+            .catch(err => {
+              throw new Error(err);
+            });
+          break;
+        case "register":
+          if (username.charAt(4) && password.charAt(4)) {
             vm._http
               .post("/api/register", { username, password })
               .then(result => {
-                console.log(result);
                 if (result.data.code == 400) {
                   alert(result.data.message);
                   return;
                 }
                 if (result.data.code == 200) {
-                  vm.$cookie.set("user", `username=${username}`, {
-                    expires: "2h"
-                  });
+                  vm.$cookie.set(
+                    "user",
+                    `username=${username}, uid=${result.data.uid}`,
+                    {
+                      expires: "2h"
+                    }
+                  );
+                  if (vm.$cookie.get("user")) {
+                    vm.LoginState();
+                  }
                   alert(result.data.message);
                   vm.$router.push({ path: "/" });
                   return;
@@ -116,10 +129,10 @@ export default {
                 if (err) throw new Error(err);
               });
             break;
-        }
-      } else {
-        alert("不符合规则");
-        return;
+          } else {
+            alert("不符合规则");
+            return;
+          }
       }
     }
   }

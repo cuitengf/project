@@ -20,6 +20,12 @@ export default {
   },
   components: {
     Nav,
+  },
+  created(){
+    this.getUid(this)
+  },
+  methods: {
+    ...mapMutations(['getUid'])
   }
 };
 </script>

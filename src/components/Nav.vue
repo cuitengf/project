@@ -134,6 +134,35 @@
                 </router-link>
               </span>
             </div>
+            <div>
+              <ul class="nav_right">
+                    <li>
+                        <a href="javascript:">
+                            (*Φ皿Φ*)
+                        </a>
+                    </li>
+                    <li>
+                        
+                        <router-link to="" v-if="isLogin">
+                          已登录《{{user}}》
+                        </router-link>
+
+                        <router-link to="/login" v-else>
+                            登陆
+                        </router-link>
+
+                        <a href="javascript:" @click="cancel()" v-if="isLogin">
+                            注销
+                        </a>
+                    </li>
+
+                    <li v-if="!isLogin">
+                        <router-link to="/enroll">
+                            注册
+                        </router-link>
+                    </li>
+                </ul>
+            </div>
           </div>
         </div>
         
@@ -141,7 +170,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 export default {
   name: "Nav",
   data() {
@@ -168,17 +197,24 @@ export default {
     this.isLogin = this.$cookie.get("user") ? true : false;
     this.getUser();
   },
+  computed: {
+    ...mapState(["loginState"])
+  },
   methods: {
     ...mapMutations(["LoginState"]),
     getUser() {
-      this.user = this.$cookie.get("user")
-        ? this.$cookie.get("user").split("=")[1]
-        : this.$cookie.get("user");
+      this.user = this.$cookie
+        .get("user") ?  this.$cookie
+        .get("user")
+        .slice(0, this.$cookie.get("user").indexOf(","))
+        .split("=")[1] : ''
+      
     },
     cancel() {
       this.LoginState();
       this.$cookie.delete("user");
-      this.isLogin = this.$store.state.loginState;
+      this.isLogin = this.loginState;
+      this.$router.push({ path: '/' });
     },
     slide() {
       if (!this.flag) {
