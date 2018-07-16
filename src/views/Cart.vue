@@ -109,8 +109,6 @@ export default {
           this.flag = vm.list[0] ? true : false;
 
           break;
-          1;
-
         case "buy":
           vm.$(".type").removeClass("color");
           ev.target.classList.add("color");

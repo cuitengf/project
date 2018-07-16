@@ -18,22 +18,17 @@ export default {
     };
   },
   methods: {
-    myFocus() {
-      console.log(13456);
-    },
-    show() {
-      if (this.i == this.$(".img").length) this.i = 0;
-      this.$(".img").hide();
-      this.$(".img")
-        .eq(this.i)
-        .show();
+    show(v) {
+      if (this.i == v.length) this.i = 0;
+      v.hide();
+      v.eq(this.i).show();
       this.i++;
     }
   },
   created() {
     setInterval(() => {
-      this.show()
-    },3000)
+      this.show(this.$(".img"));
+    }, 3000);
   }
 };
 </script>
